@@ -1,13 +1,14 @@
 import pygame
 import sys
-import player
+from modules.player import Player
 
+# 화면과 런
 class Screen:
     def __init__(self):
         # 초기
         pygame.init()
         # 스크린 해상도
-        self.width, self.height = 800, 600
+        self.width, self.height = 800, 1200
         # 배경 색
         self.back_ground_color = (0, 0, 0)
         # 스크린 세팅
@@ -21,7 +22,7 @@ class Screen:
         self.running = True
         self.all_sprites = pygame.sprite.Group()
         # player
-        self.player = player.Player(self.width // 2, self.height // 2)
+        self.player = Player(self.width // 2, self.height - 200)
         self.all_sprites.add(self.player)
 
     # 사건 중 x창 입력시 게임 종료

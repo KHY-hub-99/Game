@@ -7,7 +7,7 @@ class Screen:
         # 초기
         pygame.init()
         # 스크린 해상도
-        self.width, self.height = 800, 600
+        self.width, self.height = 800, 1200
         # 배경 색
         self.back_ground_color = (0, 0, 0)
         # 스크린 세팅
@@ -21,7 +21,7 @@ class Screen:
         self.running = True
         self.all_sprites = pygame.sprite.Group()
         # player
-        self.player = Player(self.width // 2, self.height // 2)
+        self.player = Player(self.width // 2, self.height - 200)
         self.all_sprites.add(self.player)
 
     # 사건 중 x창 입력시 게임 종료
@@ -55,8 +55,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.speed = 5
-        self.image = pygame.image.load("Game/images/player.png")
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image = pygame.image.load("modules/images/player.png")
+        self.image = pygame.transform.scale(self.image, (60, 60))
         self.rect = self.image.get_rect(topleft=(x, y))
     
     def update(self):

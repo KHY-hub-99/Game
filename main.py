@@ -1,4 +1,4 @@
-from Game.screen import Screen
+from modules.screen import Screen
 
 # 게임 실행
 if __name__ == "__main__":
