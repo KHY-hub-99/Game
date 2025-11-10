@@ -39,6 +39,7 @@ class Screen:
     def draw(self):
         self.screen.fill(self.back_ground_color)
         self.all_sprites.draw(self.screen)
+        self.player.bullets.draw(self.screen)
 
     # 실행
     def run(self):

@@ -1,4 +1,5 @@
 import pygame
+from modules.bullet import Bullet
 
 # Player
 class Player(pygame.sprite.Sprite):
@@ -8,8 +9,14 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load("modules/images/player.png")
         self.image = pygame.transform.scale(self.image, (60, 60))
         self.rect = self.image.get_rect(topleft=(x, y))
+        
+        # 총알 그룹
+        self.bullets = pygame.sprite.Group()
+        self.last_shot = 0
+        self.shot_down = 250
     
     def update(self):
+        # 이동키 조정
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             self.rect.x -= self.speed
@@ -19,3 +26,21 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= self.speed
         if keys[pygame.K_DOWN]:
             self.rect.y += self.speed
+            
+        # 총알키 조정
+        if keys[pygame.K_SPACE]:
+            self.fire_bullet()
+        
+        # 총알 이동 좌표 업데이트    
+        self.bullets.update()
+        
+    def fire_bullet(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_shot > self.shot_down:
+            bullet = Bullet(self.rect.centerx, self.rect.top)
+            self.bullets.add(bullet)
+            self.last_shot = now
+            
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+        self.bullets.draw(screen)

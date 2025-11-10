@@ -38,6 +38,7 @@ class Screen:
     def draw(self):
         self.screen.fill(self.back_ground_color)
         self.all_sprites.draw(self.screen)
+        self.player.bullets.draw(self.screen)
 
     # 실행
     def run(self):
@@ -58,8 +59,14 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load("modules/images/player.png")
         self.image = pygame.transform.scale(self.image, (60, 60))
         self.rect = self.image.get_rect(topleft=(x, y))
+        
+        # 총알 그룹
+        self.bullets = pygame.sprite.Group()
+        self.last_shot = 0
+        self.shot_down = 150
     
     def update(self):
+        # 이동키 조정
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             self.rect.x -= self.speed
@@ -69,6 +76,34 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= self.speed
         if keys[pygame.K_DOWN]:
             self.rect.y += self.speed
+            
+        # 총알키 조정
+        if keys[pygame.K_SPACE]:
+            self.fire_bullet()
+        
+        # 총알 이동 좌표 업데이트    
+        self.bullets.update()
+        
+    def fire_bullet(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_shot > self.shot_down:
+            bullet = Bullet(self.rect.centerx, self.rect.top)
+            self.bullets.add(bullet)
+            self.last_shot = now
+            
+# 총알        
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y, speed=10):
+        super().__init__()
+        self.image = pygame.image.load("modules/images/bullet.png")
+        self.image = pygame.transform.scale(self.image, (20, 40))
+        self.rect = self.image.get_rect(center=(x, y))
+        self.speed = speed
+            
+    def update(self):
+        self.rect.y -= self.speed
+        if self.rect.bottom < 0:
+            self.kill()
 
 # 게임 실행
 if __name__ == "__main__":
