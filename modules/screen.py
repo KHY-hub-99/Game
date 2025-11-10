@@ -8,9 +8,11 @@ class Screen:
         # 초기
         pygame.init()
         # 스크린 해상도
-        self.width, self.height = 800, 1200
+        self.width, self.height = 600, 1000
         # 배경 색
         self.back_ground_color = (0, 0, 0)
+        self.background = pygame.image.load("modules/images/background.png")
+        self.background = pygame.transform.scale(self.background, (self.width, self.height))
         # 스크린 세팅
         self.screen = pygame.display.set_mode((self.width, self.height))
         # 타이틀
@@ -37,7 +39,8 @@ class Screen:
 
     # 화면에 나타내기
     def draw(self):
-        self.screen.fill(self.back_ground_color)
+        # 배경 이미지 출력
+        self.screen.blit(self.background, (0, 0))
         self.all_sprites.draw(self.screen)
         self.player.bullets.draw(self.screen)
 

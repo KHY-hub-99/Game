@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         # 총알 그룹
         self.bullets = pygame.sprite.Group()
         self.last_shot = 0
-        self.shot_down = 250
+        self.shot_down = 150
     
     def update(self):
         # 이동키 조정
@@ -40,7 +40,3 @@ class Player(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.centerx, self.rect.top)
             self.bullets.add(bullet)
             self.last_shot = now
-            
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
-        self.bullets.draw(screen)
