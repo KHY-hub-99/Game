@@ -22,19 +22,22 @@ class Screen:
         # 프레임 일정도 유지
         self.clock = pygame.time.Clock()
         
-        # run
+        # run과 모든 스프라이트 그룹 초기화
         self.running = True
         self.all_sprites = pygame.sprite.Group()
-        self.enemies = pygame.sprite.Group()
         
-        # player
+        # player group
         self.player = Player(self.width // 2, self.height - 200)
         self.all_sprites.add(self.player)
+
+        # enemy_bullets group
+        self.enemies_bullets = pygame.sprite.Group()
         
-        # enemy
+        # enemy group
+        self.enemies = pygame.sprite.Group()
         positions = [(random.randint(50, 550), 0) for _ in range(3)]
         for pos in positions:
-            enemy = Enemy(pos[0], pos[1])
+            enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
             self.all_sprites.add(enemy)
             self.enemies.add(enemy)
 
@@ -51,7 +54,10 @@ class Screen:
     # 수정된 좌표 업데이트
     def update(self):
         self.all_sprites.update()
+        self.enemies_bullets.update()
+        self.player.bullets.update()
         self.check_collisions()
+
 
     # 화면에 나타내기
     def draw(self):
@@ -60,6 +66,9 @@ class Screen:
         self.all_sprites.draw(self.screen)
         self.player.bullets.draw(self.screen)
         self.draw_score()
+        self.enemies_bullets.draw(self.screen)
+        pygame.display.flip()
+        
 
     # 점수 그리기
     def draw_score(self):
@@ -78,7 +87,7 @@ class Screen:
                 self.score += 1
 
                 # 적을 제거한 후, 새로운 적을 다시 생성하여 추가
-                new_enemy = Enemy(random.randint(50, 550), 0)
+                new_enemy = Enemy(random.randint(50, 550), 0, self.enemies_bullets)
                 self.all_sprites.add(new_enemy)
                 self.enemies.add(new_enemy)
 

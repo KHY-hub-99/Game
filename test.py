@@ -20,16 +20,19 @@ class Screen:
         # 프레임 일정도 유지
         self.clock = pygame.time.Clock()
         
-        # run
+        # run과 모든 스프라이트 그룹 초기화
         self.running = True
         self.all_sprites = pygame.sprite.Group()
-        self.enemies = pygame.sprite.Group()
         
-        # player
+        # player group
         self.player = Player(self.width // 2, self.height - 200)
         self.all_sprites.add(self.player)
+
+        # enemy_bullets group
+        self.enemies_bullets = pygame.sprite.Group()
         
-        # enemy
+        # enemy group
+        self.enemies = pygame.sprite.Group()
         positions = [(random.randint(50, 550), 0) for _ in range(3)]
         for pos in positions:
             enemy = Enemy(pos[0], pos[1])
@@ -51,6 +54,7 @@ class Screen:
         self.all_sprites.update()
         self.check_collisions()
 
+
     # 화면에 나타내기
     def draw(self):
         # 배경 이미지 출력
@@ -58,6 +62,8 @@ class Screen:
         self.all_sprites.draw(self.screen)
         self.player.bullets.draw(self.screen)
         self.draw_score()
+        self.enemies_bullets.draw(self.screen)
+        
 
     # 점수 그리기
     def draw_score(self):
@@ -79,6 +85,7 @@ class Screen:
                 new_enemy = Enemy(random.randint(50, 550), 0)
                 self.all_sprites.add(new_enemy)
                 self.enemies.add(new_enemy)
+                self.enemies_bullets.add(new_enemy.enemy_bullets)
 
     # 실행
     def run(self):
@@ -126,6 +133,7 @@ class Player(pygame.sprite.Sprite):
         # 총알 이동 좌표 업데이트    
         self.bullets.update()
 
+        # 이탈 시
         if self.rect.top > 1000:  # Assuming screen height is 1000
             self.rect.x = self.start_x
             self.rect.y = self.start_y
@@ -172,6 +180,12 @@ class Enemy(pygame.sprite.Sprite):
         self.flash_duration = 100 # ms
         self.hits_time = 0
         self.hits = 0
+
+        # bullet timing
+        self.last_shot = pygame.time.get_ticks()
+        self.shot_down = random.randint(1000, 3000)  # ms
+        # bullet group
+        self.enemy_bullets = pygame.sprite.Group()
         
     def update(self):
         if self.is_hit:
@@ -185,6 +199,17 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x = random.randint(50, 550)
             self.rect.y = self.start_y
 
+        # 총알 추가
+        self.enemy_fire_bullet()
+        self.enemy_bullets.update()
+
+    def enemy_fire_bullet(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_shot > self.shot_down:
+            enemy_bullet = EnemyBullet(self.rect.centerx, self.rect.top)
+            self.enemy_bullets.add(enemy_bullet)
+            self.last_shot = now
+
     def get_hit(self):
         self.is_hit = True
         self.hits_time = pygame.time.get_ticks()
@@ -195,6 +220,20 @@ class Enemy(pygame.sprite.Sprite):
         dark_image = self.origin_image.copy()
         dark_image.fill((70, 70, 70), special_flags=pygame.BLEND_RGB_MULT)
         self.image = dark_image
+
+# Enemy Bullet      
+class EnemyBullet(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.image.load("modules/images/enemy_bullet.png")
+        self.image = pygame.transform.scale(self.image, (20, 40))
+        self.rect = self.image.get_rect(center=(x, y))
+        self.speed = random.randint(2, 4)
+        
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.top > 1000:
+            self.kill()
 
 # 게임 실행
 if __name__ == "__main__":

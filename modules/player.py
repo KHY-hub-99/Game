@@ -36,15 +36,15 @@ class Player(pygame.sprite.Sprite):
         # 총알 이동 좌표 업데이트    
         self.bullets.update()
 
-        if self.rect.top > 1000:  # Assuming screen height is 1000
-            self.rect.x = self.start_x
-            self.rect.y = self.start_y
+        # 이탈 시
         if self.rect.left < 0:
-            self.rect.x = self.start_x
-            self.rect.y = self.start_y
-        if self.rect.right > 600:  # Assuming screen width is 600
-            self.rect.x = self.start_x
-            self.rect.y = self.start_y
+            self.rect.left = 0
+        if self.rect.right > 600:
+            self.rect.right = 600
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > 1000:
+            self.rect.bottom = 1000
         
     def fire_bullet(self):
         now = pygame.time.get_ticks()
