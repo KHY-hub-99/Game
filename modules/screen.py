@@ -25,15 +25,22 @@ class Screen:
         # run
         self.running = True
         self.all_sprites = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
+        
         # player
         self.player = Player(self.width // 2, self.height - 200)
         self.all_sprites.add(self.player)
+        
         # enemy
         positions = [(random.randint(50, 550), 0) for _ in range(3)]
         for pos in positions:
             enemy = Enemy(pos[0], pos[1])
             self.all_sprites.add(enemy)
+            self.enemies.add(enemy)
 
+        # font
+        self.font = pygame.font.SysFont(None, 36)
+        self.score = 0
 
     # 사건 중 x창 입력시 게임 종료
     def handle_events(self):
@@ -44,6 +51,7 @@ class Screen:
     # 수정된 좌표 업데이트
     def update(self):
         self.all_sprites.update()
+        self.check_collisions()
 
     # 화면에 나타내기
     def draw(self):
@@ -51,6 +59,27 @@ class Screen:
         self.screen.blit(self.background, (0, 0))
         self.all_sprites.draw(self.screen)
         self.player.bullets.draw(self.screen)
+        self.draw_score()
+
+    # 점수 그리기
+    def draw_score(self):
+        score_surf = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+        self.screen.blit(score_surf, (10, 10))
+
+    # 충돌 검사
+    def check_collisions(self):
+        hits = pygame.sprite.groupcollide(self.enemies, self.player.bullets, False, True)
+        for enemy in hits:
+            enemy.hits += 1
+            print(f"Enemy hit! Total hits: {enemy.hits}")
+            if enemy.hits >= 3:
+                enemy.kill()
+                self.score += 1
+
+                # 적을 제거한 후, 새로운 적을 다시 생성하여 추가
+                new_enemy = Enemy(random.randint(50, 550), 0)
+                self.all_sprites.add(new_enemy)
+                self.enemies.add(new_enemy)
 
     # 실행
     def run(self):

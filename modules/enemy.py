@@ -8,12 +8,13 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.image.load("modules/images/enemy1.png")
         self.image = pygame.transform.scale(self.image, (120, 120))
         self.rect = self.image.get_rect(topleft=(x, y))
-        self.speed = random.uniform(0.7, 2.2)
+        self.speed = random.uniform(0.7, 1.5)
         self.start_x = x
         self.start_y = y
+        self.hits = 0
         
     def update(self):
         self.rect.y += self.speed
         if self.rect.top > 1000:  # Assuming screen height is 1000
-            self.rect.x = self.start_x
+            self.rect.x = random.randint(50, 550)
             self.rect.y = self.start_y

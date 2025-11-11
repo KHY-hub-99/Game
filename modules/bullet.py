@@ -1,5 +1,6 @@
 import pygame
 
+# Bullet      
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, speed=10):
         super().__init__()
