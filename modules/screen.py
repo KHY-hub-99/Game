@@ -1,6 +1,8 @@
 import pygame
 import sys
-from modules.player import Player
+from .player import Player
+from .enemy import Enemy
+import random
 
 # 화면과 런
 class Screen:
@@ -26,6 +28,11 @@ class Screen:
         # player
         self.player = Player(self.width // 2, self.height - 200)
         self.all_sprites.add(self.player)
+        # enemy
+        self.enemy_x = random.randint(10, self.width - 50)
+        self.enemy = Enemy(self.enemy_x, -50)
+        self.all_sprites.add(self.enemy)
+
 
     # 사건 중 x창 입력시 게임 종료
     def handle_events(self):
