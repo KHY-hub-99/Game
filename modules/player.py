@@ -48,6 +48,16 @@ class Player(pygame.sprite.Sprite):
         
         # 총알 이동 좌표 업데이트    
         self.bullets.update()
+        
+        # 이탈 시
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > 600:
+            self.rect.right = 600
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > 1000:
+            self.rect.bottom = 1000
 
     # 플레이어 피격 시 호출할 메서드
     def get_hit(self):
@@ -60,16 +70,6 @@ class Player(pygame.sprite.Sprite):
         dark_image = self.origin_image.copy()
         dark_image.fill((100, 100, 100), special_flags=pygame.BLEND_RGB_MULT) # 적보다 살짝 덜 어둡게
         self.image = dark_image
-
-        # 이탈 시
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > 600:
-            self.rect.right = 600
-        if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > 1000:
-            self.rect.bottom = 1000
         
     def fire_bullet(self):
         now = pygame.time.get_ticks()

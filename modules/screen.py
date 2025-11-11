@@ -48,7 +48,7 @@ class Screen:
         # HP바
         self.max_hp = 100
         self.current_hp = 100
-        self.hit_damage = 33.34
+        self.hit_damage = 20
         
         # 게임오버 판단
         self.game_over = False
