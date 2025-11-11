@@ -71,6 +71,7 @@ class Screen:
         hits = pygame.sprite.groupcollide(self.enemies, self.player.bullets, False, True)
         for enemy in hits:
             enemy.hits += 1
+            enemy.get_hit()
             print(f"Enemy hit! Total hits: {enemy.hits}")
             if enemy.hits >= 3:
                 enemy.kill()

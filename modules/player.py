@@ -9,6 +9,8 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load("modules/images/player.png")
         self.image = pygame.transform.scale(self.image, (60, 60))
         self.rect = self.image.get_rect(topleft=(x, y))
+        self.start_x = x
+        self.start_y = y
         
         # 총알 그룹
         self.bullets = pygame.sprite.Group()
@@ -33,6 +35,16 @@ class Player(pygame.sprite.Sprite):
         
         # 총알 이동 좌표 업데이트    
         self.bullets.update()
+
+        if self.rect.top > 1000:  # Assuming screen height is 1000
+            self.rect.x = self.start_x
+            self.rect.y = self.start_y
+        if self.rect.left < 0:
+            self.rect.x = self.start_x
+            self.rect.y = self.start_y
+        if self.rect.right > 600:  # Assuming screen width is 600
+            self.rect.x = self.start_x
+            self.rect.y = self.start_y
         
     def fire_bullet(self):
         now = pygame.time.get_ticks()
