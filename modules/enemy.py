@@ -34,7 +34,7 @@ class Enemy(pygame.sprite.Sprite):
 
         self.rect.y += self.speed
         if self.rect.top > 1000:  # Assuming screen height is 1000
-            self.rect.x = random.randint(50, 550)
+            self.rect.x = random.randint(120, 480)
             self.rect.y = self.start_y
 
         # 총알 추가
