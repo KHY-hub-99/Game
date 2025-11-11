@@ -45,6 +45,9 @@ class Screen:
         self.font = pygame.font.SysFont(None, 36)
         self.score = 0
 
+        # 플레이어 충돌 카운트
+        self.player_hits = 0
+
     # 사건 중 x창 입력시 게임 종료
     def handle_events(self):
         for event in pygame.event.get():
@@ -67,6 +70,7 @@ class Screen:
         self.player.bullets.draw(self.screen)
         self.draw_score()
         self.enemies_bullets.draw(self.screen)
+        self.draw_player_hits()
         pygame.display.flip()
         
 
@@ -74,6 +78,11 @@ class Screen:
     def draw_score(self):
         score_surf = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
         self.screen.blit(score_surf, (10, 10))
+
+    # 플레이어 피격 횟수 그리기 (💡 추가)
+    def draw_player_hits(self):
+        hits_surf = self.font.render(f"Hits: {self.player_hits}", True, (255, 0, 0))
+        self.screen.blit(hits_surf, (self.width - hits_surf.get_width() - 10, 10))
 
     # 충돌 검사
     def check_collisions(self):
@@ -90,6 +99,13 @@ class Screen:
                 new_enemy = Enemy(random.randint(50, 550), 0, self.enemies_bullets)
                 self.all_sprites.add(new_enemy)
                 self.enemies.add(new_enemy)
+
+        hits_player_bullet = pygame.sprite.spritecollide(self.player, self.enemies_bullets, True)
+        if hits_player_bullet:
+            self.player_hits += 1
+            print(f"Player hit by bullet! Total hits: {self.player_hits}")
+            self.player.get_hit()
+
 
     # 실행
     def run(self):
