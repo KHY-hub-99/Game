@@ -5,7 +5,7 @@ import random
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load("modules/images/enemy.png")
+        self.image = pygame.image.load("modules/images/enemy1.png")
         self.image = pygame.transform.scale(self.image, (120, 120))
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = random.uniform(0.7, 2.2)

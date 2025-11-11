@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 # 화면과 런
 class Screen:
@@ -7,9 +8,11 @@ class Screen:
         # 초기
         pygame.init()
         # 스크린 해상도
-        self.width, self.height = 800, 1200
+        self.width, self.height = 600, 1000
         # 배경 색
         self.back_ground_color = (0, 0, 0)
+        self.background = pygame.image.load("modules/images/background.png")
+        self.background = pygame.transform.scale(self.background, (self.width, self.height))
         # 스크린 세팅
         self.screen = pygame.display.set_mode((self.width, self.height))
         # 타이틀
@@ -20,9 +23,22 @@ class Screen:
         # run
         self.running = True
         self.all_sprites = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
+        
         # player
         self.player = Player(self.width // 2, self.height - 200)
         self.all_sprites.add(self.player)
+        
+        # enemy
+        positions = [(random.randint(50, 550), 0) for _ in range(3)]
+        for pos in positions:
+            enemy = Enemy(pos[0], pos[1])
+            self.all_sprites.add(enemy)
+            self.enemies.add(enemy)
+
+        # font
+        self.font = pygame.font.SysFont(None, 36)
+        self.score = 0
 
     # 사건 중 x창 입력시 게임 종료
     def handle_events(self):
@@ -33,12 +49,35 @@ class Screen:
     # 수정된 좌표 업데이트
     def update(self):
         self.all_sprites.update()
+        self.check_collisions()
 
     # 화면에 나타내기
     def draw(self):
-        self.screen.fill(self.back_ground_color)
+        # 배경 이미지 출력
+        self.screen.blit(self.background, (0, 0))
         self.all_sprites.draw(self.screen)
         self.player.bullets.draw(self.screen)
+        self.draw_score()
+
+    # 점수 그리기
+    def draw_score(self):
+        score_surf = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+        self.screen.blit(score_surf, (10, 10))
+
+    # 충돌 검사
+    def check_collisions(self):
+        hits = pygame.sprite.groupcollide(self.enemies, self.player.bullets, False, True)
+        for enemy in hits:
+            enemy.hits += 1
+            print(f"Enemy hit! Total hits: {enemy.hits}")
+            if enemy.hits >= 3:
+                enemy.kill()
+                self.score += 1
+
+                # 적을 제거한 후, 새로운 적을 다시 생성하여 추가
+                new_enemy = Enemy(random.randint(50, 550), 0)
+                self.all_sprites.add(new_enemy)
+                self.enemies.add(new_enemy)
 
     # 실행
     def run(self):
@@ -90,8 +129,8 @@ class Player(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.centerx, self.rect.top)
             self.bullets.add(bullet)
             self.last_shot = now
-            
-# 총알        
+
+# Bullet      
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, speed=10):
         super().__init__()
@@ -99,11 +138,29 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (20, 40))
         self.rect = self.image.get_rect(center=(x, y))
         self.speed = speed
-            
+        
     def update(self):
         self.rect.y -= self.speed
         if self.rect.bottom < 0:
             self.kill()
+
+# Enemy
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.image.load("modules/images/enemy1.png")
+        self.image = pygame.transform.scale(self.image, (120, 120))
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.speed = random.uniform(0.7, 2.2)
+        self.start_x = x
+        self.start_y = y
+        self.hits = 0
+        
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.top > 1000:  # Assuming screen height is 1000
+            self.rect.x = random.randint(50, 550)
+            self.rect.y = self.start_y
 
 # 게임 실행
 if __name__ == "__main__":

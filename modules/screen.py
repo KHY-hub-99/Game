@@ -29,9 +29,10 @@ class Screen:
         self.player = Player(self.width // 2, self.height - 200)
         self.all_sprites.add(self.player)
         # enemy
-        self.enemy_x = random.randint(10, self.width - 50)
-        self.enemy = Enemy(self.enemy_x, -50)
-        self.all_sprites.add(self.enemy)
+        positions = [(random.randint(50, 550), 0) for _ in range(3)]
+        for pos in positions:
+            enemy = Enemy(pos[0], pos[1])
+            self.all_sprites.add(enemy)
 
 
     # 사건 중 x창 입력시 게임 종료
