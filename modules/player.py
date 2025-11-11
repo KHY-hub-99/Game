@@ -77,3 +77,4 @@ class Player(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.centerx, self.rect.top)
             self.bullets.add(bullet)
             self.last_shot = now
+

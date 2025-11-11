@@ -33,7 +33,7 @@ class Screen:
         
         # enemy group
         self.enemies = pygame.sprite.Group()
-        positions = [(random.randint(60, 540), 0) for _ in range(5)]
+        positions = [(random.randint(60, 540), 0) for _ in range(3)]
         for pos in positions:
             enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
             self.all_sprites.add(enemy)
@@ -50,6 +50,11 @@ class Screen:
         
         # 게임오버 판단
         self.game_over = False
+        
+        # 사용자 정의 이벤트 생성
+        self.ADDENEMY = pygame.USEREVENT + 1 
+        # 10000ms (10초)마다 ADDENEMY 이벤트 발생 설정
+        pygame.time.set_timer(self.ADDENEMY, 5000)
 
     # 사건 중 x창 입력시 게임 종료
     def handle_events(self):
@@ -62,6 +67,10 @@ class Screen:
                     self.reset_game()
                 elif event.key == pygame.K_ESCAPE:
                     self.running = False
+                    
+            # timer add
+            if event.type == self.ADDENEMY and not self.game_over:
+                self.spawn_new_enemy()
     
     # 수정된 좌표 업데이트
     def update(self):
@@ -192,13 +201,20 @@ class Screen:
         self.all_sprites.add(self.player)
         
         # 4. 적군 재초기화 및 그룹에 추가
-        positions = [(random.randint(50, 550), 0) for _ in range(3)]
+        positions = [(random.randint(60, 540), 0) for _ in range(3)]
         for pos in positions:
             enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
             self.all_sprites.add(enemy)
             self.enemies.add(enemy)
         
         print("Game Restarted!")
+        
+    # Spawn
+    def spawn_new_enemy(self):
+        new_enemy = Enemy(random.randint(60, 540), 0, self.enemies_bullets)
+        self.all_sprites.add(new_enemy)
+        self.enemies.add(new_enemy)
+        print("After 10s New Enemy Added")
 
     # 충돌 검사
     def check_collisions(self):
@@ -212,7 +228,7 @@ class Screen:
                 self.score += 100
 
                 # 적을 제거한 후, 새로운 적을 다시 생성하여 추가
-                new_enemy = Enemy(random.randint(50, 550), 0, self.enemies_bullets)
+                new_enemy = Enemy(random.randint(60, 540), 0, self.enemies_bullets)
                 self.all_sprites.add(new_enemy)
                 self.enemies.add(new_enemy)
 
