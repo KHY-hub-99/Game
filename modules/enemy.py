@@ -7,7 +7,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, all_enemy_bullets):
         super().__init__()
         self.origin_image = pygame.image.load("modules/images/enemy1.png")
-        self.origin_image = pygame.transform.scale(self.origin_image, (120, 120))
+        self.origin_image = pygame.transform.scale(self.origin_image, (90, 90))
         self.image = self.origin_image.copy()
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = random.uniform(0.7, 1.5)
@@ -39,7 +39,6 @@ class Enemy(pygame.sprite.Sprite):
 
         # 총알 추가
         self.enemy_fire_bullet()
-        self.enemy_bullets.update()
 
     def enemy_fire_bullet(self):
         now = pygame.time.get_ticks()

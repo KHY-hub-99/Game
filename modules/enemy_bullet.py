@@ -8,7 +8,7 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.image = pygame.image.load("modules/images/enemy_bullet.png")
         self.image = pygame.transform.scale(self.image, (30, 60))
         self.rect = self.image.get_rect(center=(x, y))
-        self.speed = random.randint(2, 4)
+        self.speed = random.randint(3, 5)
         
     def update(self):
         self.rect.y += self.speed

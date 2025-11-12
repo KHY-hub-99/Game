@@ -35,7 +35,7 @@ class Screen:
 
         # enemy group
         self.enemies = pygame.sprite.Group()
-        positions = [(random.randint(60, 540), 0) for _ in range(3)]
+        positions = [(random.randint(60, 540), random.randint(-180, -100)) for _ in range(3)]
         for pos in positions:
             enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
             self.all_sprites.add(enemy)
@@ -59,7 +59,7 @@ class Screen:
         # 사용자 정의 이벤트 생성
         self.ADDENEMY = pygame.USEREVENT + 1 
         # 10000ms (10초)마다 ADDENEMY 이벤트 발생 설정
-        pygame.time.set_timer(self.ADDENEMY, 6000)
+        pygame.time.set_timer(self.ADDENEMY, 3000)
 
     # 사건 중 x창 입력시 게임 종료
     def handle_events(self):
@@ -187,14 +187,14 @@ class Screen:
         
     # 인트로 도면 설정
     def draw_intro(self):
-        intro_font = pygame.font.SysFont("pixel_font.ttf", 64)
-        intro_surf = intro_font.render("SHOT!", True, (255, 255, 255))
-        intro_rect = intro_surf.get_rect(center=(self.width//2, self.height//2))
+        intro_font = pygame.font.SysFont("pixel_font.ttf", 128)
+        intro_surf = intro_font.render("SHOT!", True, (192, 192, 192))
+        intro_rect = intro_surf.get_rect(center=(self.width//2, self.height//2 - 100))
         self.screen.blit(intro_surf, intro_rect)
 
-        start_intro = pygame.font.SysFont("pixel_font.ttf", 32)
+        start_intro = pygame.font.SysFont("pixel_font.ttf", 64)
         start_surf = start_intro.render('Press "Enter" to Start', False, (255, 255, 255))
-        start_rect = start_surf.get_rect(center=(self.width//2, self.height//2 + 50))
+        start_rect = start_surf.get_rect(center=(self.width//2, self.height//2))
         self.screen.blit(start_surf, start_rect)
 
     # 게임 오버 텍스트 그리기
@@ -226,7 +226,7 @@ class Screen:
         self.all_sprites.add(self.player)
         
         # 4. 적군 재초기화 및 그룹에 추가
-        positions = [(random.randint(60, 540), 0) for _ in range(3)]
+        positions = [(random.randint(60, 540), random.randint(-180, -100)) for _ in range(3)]
         for pos in positions:
             enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
             self.all_sprites.add(enemy)
@@ -236,10 +236,13 @@ class Screen:
         
     # Spawn
     def spawn_new_enemy(self):
-        new_enemy = Enemy(random.randint(60, 540), 0, self.enemies_bullets)
-        self.all_sprites.add(new_enemy)
-        self.enemies.add(new_enemy)
-        print("After 6s New Enemy Added")
+        if self.game_started and not self.game_over:
+            positions = [(random.randint(60, 540), random.randint(-180, -100)) for _ in range(random.randint(1, 5))]
+            for pos in positions:
+                new_enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
+                self.all_sprites.add(new_enemy)
+                self.enemies.add(new_enemy)
+                print("After 3s New Enemy Added")
 
     # 충돌 검사
     def check_collisions(self):
@@ -251,11 +254,6 @@ class Screen:
             if enemy.hits >= 3:
                 enemy.kill()
                 self.score += 100
-
-                # 적을 제거한 후, 새로운 적을 다시 생성하여 추가
-                new_enemy = Enemy(random.randint(60, 540), 0, self.enemies_bullets)
-                self.all_sprites.add(new_enemy)
-                self.enemies.add(new_enemy)
 
         hits_player_bullet = pygame.sprite.spritecollide(self.player, self.enemies_bullets, True)
         if hits_player_bullet:

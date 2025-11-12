@@ -30,10 +30,10 @@ class Screen:
 
         # enemy_bullets group
         self.enemies_bullets = pygame.sprite.Group()
-        
+
         # enemy group
         self.enemies = pygame.sprite.Group()
-        positions = [(random.randint(60, 540), 0) for _ in range(3)]
+        positions = [(random.randint(60, 540), random.randint(-180, -100)) for _ in range(3)]
         for pos in positions:
             enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
             self.all_sprites.add(enemy)
@@ -48,20 +48,30 @@ class Screen:
         self.current_hp = 100
         self.hit_damage = 20
         
+        # 인트로
+        self.game_started = False
+
         # 게임오버 판단
         self.game_over = False
         
         # 사용자 정의 이벤트 생성
         self.ADDENEMY = pygame.USEREVENT + 1 
         # 10000ms (10초)마다 ADDENEMY 이벤트 발생 설정
-        pygame.time.set_timer(self.ADDENEMY, 5000)
+        pygame.time.set_timer(self.ADDENEMY, 3000)
 
     # 사건 중 x창 입력시 게임 종료
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-                
+
+            # 인트로 화면에서 엔터키 입력시 게임 시작
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                if not self.game_started:
+                    self.game_started = True
+                    print("Game Started!")
+
+            # 게임 오버 상태에서 R키 입력시 게임 재시작, ESC키 입력시 종료    
             if self.game_over and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     self.reset_game()
@@ -74,7 +84,7 @@ class Screen:
     
     # 수정된 좌표 업데이트
     def update(self):
-        if not self.game_over:
+        if not self.game_over and self.game_started:
             self.all_sprites.update()
             self.enemies_bullets.update()
             self.player.bullets.update()
@@ -94,6 +104,9 @@ class Screen:
         if self.game_over:
             self.draw_game_over()
         
+        if not self.game_started:
+            self.draw_intro()
+
         pygame.display.flip()
         
 
@@ -170,7 +183,18 @@ class Screen:
         # 현재 HP 바 채우기
         pygame.draw.rect(self.screen, fill_color, fill_rect)
         
-        
+    # 인트로 도면 설정
+    def draw_intro(self):
+        intro_font = pygame.font.SysFont("pixel_font.ttf", 128)
+        intro_surf = intro_font.render("SHOT!", True, (192, 192, 192))
+        intro_rect = intro_surf.get_rect(center=(self.width//2, self.height//2 - 100))
+        self.screen.blit(intro_surf, intro_rect)
+
+        start_intro = pygame.font.SysFont("pixel_font.ttf", 64)
+        start_surf = start_intro.render('Press "Enter" to Start', False, (255, 255, 255))
+        start_rect = start_surf.get_rect(center=(self.width//2, self.height//2))
+        self.screen.blit(start_surf, start_rect)
+
     # 게임 오버 텍스트 그리기
     def draw_game_over(self):
         game_over_font = pygame.font.SysFont("pixel_font.ttf", 64)
@@ -179,7 +203,7 @@ class Screen:
         self.screen.blit(text_surf, text_rect)
         
         restart_font = pygame.font.SysFont("pixel_font.ttf", 32)
-        restart_surf = restart_font.render('Press "R" for restart', False, (255, 255, 255))
+        restart_surf = restart_font.render('Press "R" to restart', False, (255, 255, 255))
         restart_rect = restart_surf.get_rect(center=(self.width//2, self.height//2 + 50))
         self.screen.blit(restart_surf, restart_rect)
         
@@ -187,7 +211,6 @@ class Screen:
     def reset_game(self):
         # 1. 게임 상태 변수 초기화
         self.score = 0
-        self.player_hits = 0
         self.current_hp = self.max_hp
         self.game_over = False
         
@@ -201,7 +224,7 @@ class Screen:
         self.all_sprites.add(self.player)
         
         # 4. 적군 재초기화 및 그룹에 추가
-        positions = [(random.randint(60, 540), 0) for _ in range(3)]
+        positions = [(random.randint(60, 540), random.randint(-180, -100)) for _ in range(3)]
         for pos in positions:
             enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
             self.all_sprites.add(enemy)
@@ -211,10 +234,13 @@ class Screen:
         
     # Spawn
     def spawn_new_enemy(self):
-        new_enemy = Enemy(random.randint(60, 540), 0, self.enemies_bullets)
-        self.all_sprites.add(new_enemy)
-        self.enemies.add(new_enemy)
-        print("After 10s New Enemy Added")
+        if self.game_started and not self.game_over:
+            positions = [(random.randint(60, 540), random.randint(-180, -100)) for _ in range(random.randint(1, 5))]
+            for pos in positions:
+                new_enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
+                self.all_sprites.add(new_enemy)
+                self.enemies.add(new_enemy)
+                print("After 3s New Enemy Added")
 
     # 충돌 검사
     def check_collisions(self):
@@ -226,11 +252,6 @@ class Screen:
             if enemy.hits >= 3:
                 enemy.kill()
                 self.score += 100
-
-                # 적을 제거한 후, 새로운 적을 다시 생성하여 추가
-                new_enemy = Enemy(random.randint(60, 540), 0, self.enemies_bullets)
-                self.all_sprites.add(new_enemy)
-                self.enemies.add(new_enemy)
 
         hits_player_bullet = pygame.sprite.spritecollide(self.player, self.enemies_bullets, True)
         if hits_player_bullet:
@@ -253,7 +274,9 @@ class Screen:
             self.update()
             self.draw()
             
-            if self.game_over:
+            if not self.game_started:
+                self.clock.tick(30)
+            elif self.game_over:
                 pygame.display.flip()
                 self.clock.tick(10)
             else:
@@ -338,12 +361,13 @@ class Player(pygame.sprite.Sprite):
             self.bullets.add(bullet)
             self.last_shot = now
 
+
 # Bullet      
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, speed=10):
         super().__init__()
         self.image = pygame.image.load("modules/images/bullet.png")
-        self.image = pygame.transform.scale(self.image, (20, 40))
+        self.image = pygame.transform.scale(self.image, (25, 50))
         self.rect = self.image.get_rect(center=(x, y))
         self.speed = speed
         
@@ -357,7 +381,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, all_enemy_bullets):
         super().__init__()
         self.origin_image = pygame.image.load("modules/images/enemy1.png")
-        self.origin_image = pygame.transform.scale(self.origin_image, (120, 120))
+        self.origin_image = pygame.transform.scale(self.origin_image, (90, 90))
         self.image = self.origin_image.copy()
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = random.uniform(0.7, 1.5)
@@ -389,7 +413,6 @@ class Enemy(pygame.sprite.Sprite):
 
         # 총알 추가
         self.enemy_fire_bullet()
-        self.enemy_bullets.update()
 
     def enemy_fire_bullet(self):
         now = pygame.time.get_ticks()
@@ -410,6 +433,7 @@ class Enemy(pygame.sprite.Sprite):
         dark_image.fill((70, 70, 70), special_flags=pygame.BLEND_RGB_MULT)
         self.image = dark_image
 
+
 # Enemy Bullet      
 class EnemyBullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -417,7 +441,7 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.image = pygame.image.load("modules/images/enemy_bullet.png")
         self.image = pygame.transform.scale(self.image, (30, 60))
         self.rect = self.image.get_rect(center=(x, y))
-        self.speed = random.randint(2, 4)
+        self.speed = random.randint(3, 5)
         
     def update(self):
         self.rect.y += self.speed
