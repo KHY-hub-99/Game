@@ -32,7 +32,7 @@ class Screen:
 
         # enemy_bullets group
         self.enemies_bullets = pygame.sprite.Group()
-        
+
         # enemy group
         self.enemies = pygame.sprite.Group()
         positions = [(random.randint(60, 540), 0) for _ in range(3)]
@@ -50,6 +50,9 @@ class Screen:
         self.current_hp = 100
         self.hit_damage = 20
         
+        # 인트로
+        self.game_started = False
+
         # 게임오버 판단
         self.game_over = False
         
@@ -63,7 +66,14 @@ class Screen:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-                
+
+            # 인트로 화면에서 엔터키 입력시 게임 시작
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                if not self.game_started:
+                    self.game_started = True
+                    print("Game Started!")
+
+            # 게임 오버 상태에서 R키 입력시 게임 재시작, ESC키 입력시 종료    
             if self.game_over and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     self.reset_game()
@@ -76,7 +86,7 @@ class Screen:
     
     # 수정된 좌표 업데이트
     def update(self):
-        if not self.game_over:
+        if not self.game_over and self.game_started:
             self.all_sprites.update()
             self.enemies_bullets.update()
             self.player.bullets.update()
@@ -96,6 +106,9 @@ class Screen:
         if self.game_over:
             self.draw_game_over()
         
+        if not self.game_started:
+            self.draw_intro()
+
         pygame.display.flip()
         
 
@@ -172,7 +185,18 @@ class Screen:
         # 현재 HP 바 채우기
         pygame.draw.rect(self.screen, fill_color, fill_rect)
         
-        
+    # 인트로 도면 설정
+    def draw_intro(self):
+        intro_font = pygame.font.SysFont("pixel_font.ttf", 64)
+        intro_surf = intro_font.render("SHOT!", True, (255, 255, 255))
+        intro_rect = intro_surf.get_rect(center=(self.width//2, self.height//2))
+        self.screen.blit(intro_surf, intro_rect)
+
+        start_intro = pygame.font.SysFont("pixel_font.ttf", 32)
+        start_surf = start_intro.render('Press "Enter" to Start', False, (255, 255, 255))
+        start_rect = start_surf.get_rect(center=(self.width//2, self.height//2 + 50))
+        self.screen.blit(start_surf, start_rect)
+
     # 게임 오버 텍스트 그리기
     def draw_game_over(self):
         game_over_font = pygame.font.SysFont("pixel_font.ttf", 64)
@@ -181,7 +205,7 @@ class Screen:
         self.screen.blit(text_surf, text_rect)
         
         restart_font = pygame.font.SysFont("pixel_font.ttf", 32)
-        restart_surf = restart_font.render('Press "R" for restart', False, (255, 255, 255))
+        restart_surf = restart_font.render('Press "R" to restart', False, (255, 255, 255))
         restart_rect = restart_surf.get_rect(center=(self.width//2, self.height//2 + 50))
         self.screen.blit(restart_surf, restart_rect)
         
@@ -189,7 +213,6 @@ class Screen:
     def reset_game(self):
         # 1. 게임 상태 변수 초기화
         self.score = 0
-        self.player_hits = 0
         self.current_hp = self.max_hp
         self.game_over = False
         
@@ -216,7 +239,7 @@ class Screen:
         new_enemy = Enemy(random.randint(60, 540), 0, self.enemies_bullets)
         self.all_sprites.add(new_enemy)
         self.enemies.add(new_enemy)
-        print("After 10s New Enemy Added")
+        print("After 6s New Enemy Added")
 
     # 충돌 검사
     def check_collisions(self):
@@ -255,7 +278,9 @@ class Screen:
             self.update()
             self.draw()
             
-            if self.game_over:
+            if not self.game_started:
+                self.clock.tick(30)
+            elif self.game_over:
                 pygame.display.flip()
                 self.clock.tick(10)
             else:
