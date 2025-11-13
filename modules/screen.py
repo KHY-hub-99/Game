@@ -60,6 +60,9 @@ class Screen:
         self.ADDENEMY = pygame.USEREVENT + 1 
         # 10000ms (10초)마다 ADDENEMY 이벤트 발생 설정
         pygame.time.set_timer(self.ADDENEMY, 3000)
+        
+        # 시작 시간
+        self.start_time = pygame.time.get_ticks()
 
     # 사건 중 x창 입력시 게임 종료
     def handle_events(self):
@@ -237,12 +240,33 @@ class Screen:
     # Spawn
     def spawn_new_enemy(self):
         if self.game_started and not self.game_over:
-            positions = [(random.randint(60, 540), random.randint(-180, -100)) for _ in range(random.randint(1, 5))]
+            elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000
+            # 기본 난이도
+            if elapsed_time < 30:
+                # 0~29초: 적 1~5개
+                count_range = (1, 3)
+                print("0~30초 구간: 기본 난이도")
+
+            elif elapsed_time < 60:
+                # 30~59초: 적 2~6개
+                count_range = (2, 5)
+                print("30초 경과! 난이도 상승")
+
+            else:
+                # 60초 이상: 적 3~7개
+                count_range = (3, 7)
+                print("60초 경과! 최상 난이도")
+                
+            positions = [(random.randint(60, 540), random.randint(-180, -100)) for _ in range(random.randint(*count_range))]
+            
             for pos in positions:
                 new_enemy = Enemy(pos[0], pos[1], self.enemies_bullets)
                 self.all_sprites.add(new_enemy)
                 self.enemies.add(new_enemy)
-                print("After 3s New Enemy Added")
+                print(f"새로운 적 {len(positions)}명 생성 (경과시간: {elapsed_time}s)")
+                
+                
+
 
     # 충돌 검사
     def check_collisions(self):
