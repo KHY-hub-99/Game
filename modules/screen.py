@@ -74,6 +74,7 @@ class Screen:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 if not self.game_started:
                     self.game_started = True
+                    self.start_time = pygame.time.get_ticks()
                     print("Game Started!")
 
             # 게임 오버 상태에서 R키 입력시 게임 재시작, ESC키 입력시 종료    
